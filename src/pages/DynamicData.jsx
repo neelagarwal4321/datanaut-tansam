@@ -182,6 +182,7 @@ export default function DynamicData() {
   const wsReconnectTimerRef = useRef(null);
   const wsStoppedRef = useRef(false);
   const lastUpdateRef = useRef(Date.now());
+  const tableScrollRef = useRef(null);
   const WS_URL = `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.hostname === "localhost" ? "127.0.0.1" : window.location.hostname}:8085`;
 
   const saveTableData = (tableData, format = "json") => {
@@ -463,6 +464,13 @@ export default function DynamicData() {
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId]);
+
+  // Auto-scroll table to bottom whenever cached data updates
+  useEffect(() => {
+    if (tableScrollRef.current) {
+      tableScrollRef.current.scrollTop = tableScrollRef.current.scrollHeight;
+    }
+  }, [cached]);
 
   // WebSocket for realtime updates & connections list refresh with auto-reconnect
   useEffect(() => {
@@ -1088,7 +1096,7 @@ export default function DynamicData() {
               </div>
             )}
 
-            <div className="flex-1 min-h-0 overflow-auto max-h-[500px]">
+            <div ref={tableScrollRef} className="flex-1 min-h-0 overflow-auto max-h-[500px]">
               {cached.length > 0 ? (
                 cached.map((tableData, i) => (
                   <div key={i} className="mb-5 bg-slate-100 dark:bg-slate-800/70 rounded-xl shadow-sm overflow-hidden border border-slate-200 dark:border-slate-700">

@@ -447,11 +447,26 @@ class ConnectionManager {
             if (!connection || !connection.dataCache) return;
 
             const messageStr = message.toString();
+            console.log(`📨 MQTT raw message [${receivedTopic}]: ${messageStr.slice(0, 200)}`);
+            // Derive a meaningful field name from the last topic segment (e.g. "factory/sensor/distance" → "distance")
+            const topicField = receivedTopic.split("/").filter(Boolean).pop() || "value";
             let parsedData;
             try {
-              parsedData = JSON.parse(messageStr);
+              const parsed = JSON.parse(messageStr);
+              if (parsed !== null && typeof parsed === "object" && !Array.isArray(parsed)) {
+                parsedData = parsed;
+              } else if (Array.isArray(parsed)) {
+                parsedData = { [topicField]: parsed, raw: messageStr };
+              } else {
+                // plain number / string / boolean — use topic-derived field name
+                parsedData = { [topicField]: parsed };
+              }
             } catch {
-              parsedData = { raw: messageStr };
+              // non-JSON: try plain number, else raw string
+              const asNum = Number(messageStr.trim());
+              parsedData = isNaN(asNum)
+                ? { [topicField]: messageStr }
+                : { [topicField]: asNum };
             }
 
             if (!connection.dataCache[receivedTopic]) {
