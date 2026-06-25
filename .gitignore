@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+/src/backend/node_modules/
+
+# Environment & secrets — never commit real credentials
+.env
+.env.*
+!.env.example
+src/backend/.env
+src/backend/.env.*
+!src/backend/.env.example
+
+# Local connection / data stores (may contain credentials or user data)
+src/backend/connections.json
+src/backend/data.json
+src/backend/dynamic_charts.json
+
+# Databases
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Build output
+dist/
+build/
+
+# Logs & scratch output
+*.log
+*.out
+*.err
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+
+# Agent / personal tooling — not for distribution
+.claude/
+.superpowers/
+docs/superpowers/
+docs/handoff/
